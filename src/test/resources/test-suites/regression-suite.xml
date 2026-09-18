@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<suite name="Regression Suite">
+    <test name="Portfolio Regression Tests">
+        <classes>
+            <class name="com.qaautomation.portfolio.tests.HomePageTest"/>
+            <class name="com.qaautomation.portfolio.tests.ProjectPageTest"/>
+        </classes>
+    </test>
+</suite>
