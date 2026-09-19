@@ -380,4 +380,74 @@ import static org.hamcrest.Matchers.equalTo;
                     .body("message", equalTo("All fields are required."));
         }
 
+        /*
+         * NEGATIVE TEST: Email contains only whitespace
+         *
+         * Purpose:
+         * Verifies that the POST /contact endpoint rejects an email
+         * that contains only whitespace characters.
+         *
+         * A whitespace-only value should be treated as an empty
+         * required field after input validation.
+         *
+         * Test flow:
+         * 1. Send a POST request to /contact.
+         * 2. Provide a valid name and message.
+         * 3. Set the email parameter to spaces only.
+         * 4. Expect HTTP 400.
+         * 5. Verify that success is false.
+         * 6. Verify the required-field validation message.
+         */
+        @Story("Required Field Validation - Whitespace Email")
+        @Test
+        public void contactEndpointShouldReturn400WhenEmailContainsOnlyWhitespace() {
+
+            given()
+                    .spec(RequestSpecFactory.contactRequestSpec())
+                    .formParam("name", "API Test")
+                    .formParam("email", "   ")
+                    .formParam("message", "Whitespace email API test")
+                    .when()
+                    .post("/contact")
+                    .then()
+                    .statusCode(400)
+                    .body("success", equalTo(false))
+                    .body("message", equalTo("All fields are required."));
+        }
+
+        /*
+         * NEGATIVE TEST: Message contains only whitespace
+         *
+         * Purpose:
+         * Verifies that the POST /contact endpoint rejects a message
+         * that contains only whitespace characters.
+         *
+         * A whitespace-only value should be treated as an empty
+         * required field after input validation.
+         *
+         * Test flow:
+         * 1. Send a POST request to /contact.
+         * 2. Provide a valid name and email.
+         * 3. Set the message parameter to spaces only.
+         * 4. Expect HTTP 400.
+         * 5. Verify that success is false.
+         * 6. Verify the required-field validation message.
+         */
+        @Story("Required Field Validation - Whitespace Message")
+        @Test
+        public void contactEndpointShouldReturn400WhenMessageContainsOnlyWhitespace() {
+
+            given()
+                    .spec(RequestSpecFactory.contactRequestSpec())
+                    .formParam("name", "API Test")
+                    .formParam("email", "negative@example.com")
+                    .formParam("message", "   ")
+                    .when()
+                    .post("/contact")
+                    .then()
+                    .statusCode(400)
+                    .body("success", equalTo(false))
+                    .body("message", equalTo("All fields are required."));
+        }
+
 }
