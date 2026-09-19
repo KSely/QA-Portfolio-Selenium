@@ -1,5 +1,6 @@
 package com.qaautomation.portfolio.api;
 
+import com.qaautomation.portfolio.api.spec.RequestSpecFactory;
 import com.qaautomation.portfolio.database.DatabaseHelper;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
@@ -48,7 +49,7 @@ import static org.hamcrest.Matchers.equalTo;
         try {
 
             given()
-                    .contentType("application/x-www-form-urlencoded")
+                    .spec(RequestSpecFactory.contactRequestSpec())
                     .formParam("name", name)
                     .formParam("email", email)
                     .formParam("message", message)
@@ -96,7 +97,7 @@ import static org.hamcrest.Matchers.equalTo;
     public void contactEndpointShouldReturn400WhenNameIsMissing() {
 
         given()
-                .contentType("application/x-www-form-urlencoded")
+                .spec(RequestSpecFactory.contactRequestSpec())
                 .formParam("email", "negative@example.com")
                 .formParam("message", "Negative API test")
                 .when()
@@ -133,8 +134,9 @@ import static org.hamcrest.Matchers.equalTo;
     @Test
     public void contactEndpointShouldReturn400WhenEmailIsInvalid() {
 
+
         given()
-                .contentType("application/x-www-form-urlencoded")
+                .spec(RequestSpecFactory.contactRequestSpec()) // was .contentType("application/x-www-form-urlencoded")
                 .formParam("name", "API Test")
                 .formParam("email", "invalid-email")
                 .formParam("message", "Invalid email API test")
@@ -172,7 +174,7 @@ import static org.hamcrest.Matchers.equalTo;
     public void contactEndpointShouldReturn400WhenEmailIsMissing() {
 
         given()
-                .contentType("application/x-www-form-urlencoded")
+                .spec(RequestSpecFactory.contactRequestSpec())
                 .formParam("name", "API Test")
                 .formParam("message", "Missing email API test")
                 .when()
@@ -208,7 +210,7 @@ import static org.hamcrest.Matchers.equalTo;
     public void contactEndpointShouldReturn400WhenMessageIsMissing() {
 
         given()
-                .contentType("application/x-www-form-urlencoded")
+                .spec(RequestSpecFactory.contactRequestSpec())
                 .formParam("name", "API Test")
                 .formParam("email", "negative@example.com")
                 .when()
