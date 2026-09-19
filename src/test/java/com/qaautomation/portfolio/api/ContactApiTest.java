@@ -220,5 +220,125 @@ import static org.hamcrest.Matchers.equalTo;
                 .body("success", equalTo(false))
                 .body("message", equalTo("All fields are required."));
     }
+        /*
+         * NEGATIVE TEST: Empty name field
+         *
+         * Purpose:
+         * Verifies that the POST /contact endpoint rejects a request
+         * when the name parameter is present but contains an empty value.
+         *
+         * Test flow:
+         * 1. Send a POST request to /contact.
+         * 2. Include all required form parameters.
+         * 3. Set the name parameter to an empty string.
+         * 4. Verify that the API returns HTTP 400.
+         * 5. Verify that success is false.
+         * 6. Verify that the API returns the expected validation message.
+         *
+         * This test is different from the missing-name test:
+         * - Missing name: the "name" parameter is not sent at all.
+         * - Empty name: the "name" parameter is sent, but its value is "".
+         *
+         * The backend should reject both cases before inserting
+         * any data into the database.
+         */
+        @Story("Required Field Validation - Empty Name")
+        @Test
+        public void contactEndpointShouldReturn400WhenNameIsEmpty() {
+
+            given()
+                    .spec(RequestSpecFactory.contactRequestSpec())
+                    .formParam("name", "")
+                    .formParam("email", "negative@example.com")
+                    .formParam("message", "Empty name API test")
+                    .when()
+                    .post("/contact")
+                    .then()
+                    .statusCode(400)
+                    .body("success", equalTo(false))
+                    .body("message", equalTo("All fields are required."));
+        }
+
+        /*
+         * NEGATIVE TEST: Empty email field
+         *
+         * Purpose:
+         * Verifies that the POST /contact endpoint rejects a request
+         * when the email parameter is present but contains an empty value.
+         *
+         * Test flow:
+         * 1. Send a POST request to /contact.
+         * 2. Include all required form parameters.
+         * 3. Set the email parameter to an empty string.
+         * 4. Verify that the API returns HTTP 400.
+         * 5. Verify that success is false.
+         * 6. Verify that the API returns the expected validation message.
+         *
+         * This test is different from the missing-email test:
+         * - Missing email: the "email" parameter is not sent at all.
+         * - Empty email: the "email" parameter is sent, but its value is "".
+         *
+         * Because the required-field validation is performed before
+         * email-format validation, an empty email should return
+         * "All fields are required."
+         *
+         * No database cleanup is required because the request should
+         * be rejected before any INSERT operation is performed.
+         */
+        @Story("Required Field Validation - Empty Email")
+        @Test
+        public void contactEndpointShouldReturn400WhenEmailIsEmpty() {
+
+            given()
+                    .spec(RequestSpecFactory.contactRequestSpec())
+                    .formParam("name", "API Test")
+                    .formParam("email", "")
+                    .formParam("message", "Empty email API test")
+                    .when()
+                    .post("/contact")
+                    .then()
+                    .statusCode(400)
+                    .body("success", equalTo(false))
+                    .body("message", equalTo("All fields are required."));
+        }
+
+        /*
+         * NEGATIVE TEST: Empty message field
+         *
+         * Purpose:
+         * Verifies that the POST /contact endpoint rejects a request
+         * when the message parameter is present but contains an empty value.
+         *
+         * Test flow:
+         * 1. Send a POST request to /contact.
+         * 2. Include all required form parameters.
+         * 3. Set the message parameter to an empty string.
+         * 4. Verify that the API returns HTTP 400.
+         * 5. Verify that success is false.
+         * 6. Verify that the API returns the expected validation message.
+         *
+         * This test is different from the missing-message test:
+         * - Missing message: the "message" parameter is not sent at all.
+         * - Empty message: the "message" parameter is sent, but its value is "".
+         *
+         * No database cleanup is required because the request should
+         * be rejected before any INSERT operation is performed.
+         */
+        @Story("Required Field Validation - Empty Message")
+        @Test
+        public void contactEndpointShouldReturn400WhenMessageIsEmpty() {
+
+            given()
+                    .spec(RequestSpecFactory.contactRequestSpec())
+                    .formParam("name", "API Test")
+                    .formParam("email", "negative@example.com")
+                    .formParam("message", "")
+                    .when()
+                    .post("/contact")
+                    .then()
+                    .statusCode(400)
+                    .body("success", equalTo(false))
+                    .body("message", equalTo("All fields are required."));
+        }
 
 }

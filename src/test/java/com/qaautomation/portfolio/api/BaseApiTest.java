@@ -5,7 +5,6 @@ import io.restassured.RestAssured;
 import io.restassured.filter.log.LogDetail;
 import org.testng.annotations.BeforeClass;
 
-
 /*
  * Base class for API tests.
  *
