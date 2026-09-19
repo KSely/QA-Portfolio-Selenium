@@ -341,4 +341,43 @@ import static org.hamcrest.Matchers.equalTo;
                     .body("message", equalTo("All fields are required."));
         }
 
+        /*
+         * NEGATIVE TEST: Name contains only whitespace
+         *
+         * Purpose:
+         * Verifies how the POST /contact endpoint handles a name
+         * that contains only whitespace characters.
+         *
+         * A whitespace-only value is technically a non-empty string,
+         * but from a validation perspective it should normally be treated
+         * as an empty required field.
+         *
+         * Test flow:
+         * 1. Send a POST request to /contact.
+         * 2. Set the name parameter to spaces only.
+         * 3. Provide valid email and message values.
+         * 4. Expect the API to reject the request with HTTP 400.
+         * 5. Verify that success is false.
+         * 6. Verify the required-field validation message.
+         *
+         * This test helps identify whether the backend trims input
+         * before performing required-field validation.
+         */
+        @Story("Required Field Validation - Whitespace Name")
+        @Test
+        public void contactEndpointShouldReturn400WhenNameContainsOnlyWhitespace() {
+
+            given()
+                    .spec(RequestSpecFactory.contactRequestSpec())
+                    .formParam("name", "   ")
+                    .formParam("email", "negative@example.com")
+                    .formParam("message", "Whitespace name API test")
+                    .when()
+                    .post("/contact")
+                    .then()
+                    .statusCode(400)
+                    .body("success", equalTo(false))
+                    .body("message", equalTo("All fields are required."));
+        }
+
 }
