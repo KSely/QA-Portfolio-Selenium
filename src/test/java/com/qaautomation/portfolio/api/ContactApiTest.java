@@ -521,4 +521,40 @@ import static org.hamcrest.Matchers.equalTo;
                     .body("message", equalTo("Invalid email address."));
         }
 
+        /*
+         * NEGATIVE TEST: Email missing top-level domain
+         *
+         * Purpose:
+         * Verifies that the POST /contact endpoint rejects an email
+         * address that does not contain a complete domain.
+         *
+         * The value "test@example" contains a local part and the "@"
+         * character, but it does not contain a dot followed by a
+         * top-level domain.
+         *
+         * Test flow:
+         * 1. Send a POST request to /contact.
+         * 2. Provide a valid name and message.
+         * 3. Use "test@example" as the email value.
+         * 4. Expect HTTP 400.
+         * 5. Verify that success is false.
+         * 6. Verify the invalid-email validation message.
+         */
+        @Story("Email Format Validation - Missing Top-Level Domain")
+        @Test
+        public void contactEndpointShouldReturn400WhenEmailIsMissingTopLevelDomain() {
+
+            given()
+                    .spec(RequestSpecFactory.contactRequestSpec())
+                    .formParam("name", "API Test")
+                    .formParam("email", "test@example")
+                    .formParam("message", "Missing top-level domain API test")
+                    .when()
+                    .post("/contact")
+                    .then()
+                    .statusCode(400)
+                    .body("success", equalTo(false))
+                    .body("message", equalTo("Invalid email address."));
+        }
+
 }
