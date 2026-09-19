@@ -450,4 +450,39 @@ import static org.hamcrest.Matchers.equalTo;
                     .body("message", equalTo("All fields are required."));
         }
 
+        /*
+         * NEGATIVE TEST: Incomplete email format
+         *
+         * Purpose:
+         * Verifies that the POST /contact endpoint rejects an email
+         * address with an invalid format even when it contains the "@"
+         * character.
+         *
+         * The value "test@" is not a valid complete email address.
+         *
+         * Test flow:
+         * 1. Send a POST request to /contact.
+         * 2. Provide a valid name and message.
+         * 3. Use "test@" as the email value.
+         * 4. Expect HTTP 400.
+         * 5. Verify that success is false.
+         * 6. Verify the invalid-email validation message.
+         */
+        @Story("Email Format Validation - Incomplete Email")
+        @Test
+        public void contactEndpointShouldReturn400ForIncompleteEmail() {
+
+            given()
+                    .spec(RequestSpecFactory.contactRequestSpec())
+                    .formParam("name", "API Test")
+                    .formParam("email", "test@")
+                    .formParam("message", "Invalid email format API test")
+                    .when()
+                    .post("/contact")
+                    .then()
+                    .statusCode(400)
+                    .body("success", equalTo(false))
+                    .body("message", equalTo("Invalid email address."));
+        }
+
 }
