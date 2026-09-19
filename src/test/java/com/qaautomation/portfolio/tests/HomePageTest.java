@@ -86,6 +86,7 @@ public class HomePageTest extends BaseTest {
         String email = "test" + uniqueId + "@example.com";
         String message = "Test message from Selenium " + uniqueId;
 
+        try {
         homePage.openHomePage();
         homePage.fillContactForm(name, email, message);
         homePage.clickSendMessageButton();
@@ -94,11 +95,9 @@ public class HomePageTest extends BaseTest {
         Assert.assertTrue(DatabaseHelper.messageExists(email, message),
                 "Submitted message should exist in the database"
         );
-        DatabaseHelper.deleteMessage(email, message);
-        Assert.assertFalse(
-                DatabaseHelper.messageExists(email, message),
-                "Test message should be deleted from the database after verification"
-        );
+        } finally {
+            DatabaseHelper.deleteMessage(email, message);
+        }
     }
 
     //negative test
