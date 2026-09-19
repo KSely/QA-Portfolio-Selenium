@@ -6,6 +6,7 @@ import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.sql.SQLException;
@@ -15,6 +16,43 @@ import static org.hamcrest.Matchers.equalTo;
     @Epic("API Testing")
     @Feature("Contact API")
     public class ContactApiTest extends BaseApiTest {
+
+        @DataProvider(name = "invalidEmails")
+        public Object[][] invalidEmails() {
+            return new Object[][]{
+                    {"invalid-email"},
+                    {"test@"},
+                    {"@example.com"},
+                    {"test@example"}
+            };
+        }
+
+        /*
+         * DATA-DRIVEN NEGATIVE TEST: Invalid email formats
+         *
+         * Purpose:
+         * Verifies that the POST /contact endpoint rejects multiple
+         * invalid email formats using a single reusable test method.
+         *
+         * Test data is provided by the "invalidEmails" DataProvider.
+         * The test runs once for each invalid email value.
+         */
+        @Story("Email Format Validation - Invalid Formats")
+        @Test(dataProvider = "invalidEmails")
+        public void contactEndpointShouldReturn400ForInvalidEmailFormats(String email) {
+
+            given()
+                    .spec(RequestSpecFactory.contactRequestSpec())
+                    .formParam("name", "API Test")
+                    .formParam("email", email)
+                    .formParam("message", "Invalid email format data-driven test")
+                    .when()
+                    .post("/contact")
+                    .then()
+                    .statusCode(400)
+                    .body("success", equalTo(false))
+                    .body("message", equalTo("Invalid email address."));
+        }
 
     /*
      * POSITIVE TEST: Successful contact form submission
@@ -108,45 +146,6 @@ import static org.hamcrest.Matchers.equalTo;
                 .body("message", equalTo("All fields are required."));
     }
 
-    /*
-     * NEGATIVE TEST: Invalid email address
-     *
-     * Purpose:
-     * Verifies the separate email validation implemented by the backend.
-     *
-     * All required fields are provided, but the email does not contain "@",
-     * so it should fail the email validation rule.
-     *
-     * We send:
-     *   name    -> valid
-     *   email   -> "invalid-email"
-     *   message -> valid
-     *
-     * Expected result:
-     *   HTTP 400
-     *   success = false
-     *   message = "Invalid email address."
-     *
-     * This is different from the missing-email test:
-     * the email field exists, but its value is invalid.
-     */
-    @Story("Email Validation - Invalid Email")
-    @Test
-    public void contactEndpointShouldReturn400WhenEmailIsInvalid() {
-
-
-        given()
-                .spec(RequestSpecFactory.contactRequestSpec()) // was .contentType("application/x-www-form-urlencoded")
-                .formParam("name", "API Test")
-                .formParam("email", "invalid-email")
-                .formParam("message", "Invalid email API test")
-                .when()
-                .post("/contact")
-                .then()
-                .statusCode(400)
-                .body("success", equalTo(false))
-                .body("message", equalTo("Invalid email address."));
-    }
 
     /*
      * NEGATIVE TEST: Missing required email
@@ -166,8 +165,8 @@ import static org.hamcrest.Matchers.equalTo;
      *   message = "All fields are required."
      *
      * This test verifies required-field validation, while
-     * contactEndpointShouldReturn400WhenEmailIsInvalid()
-     * verifies email-format validation.
+     * email-format validation is covered separately by the
+     * data-driven invalid email test.
      */
     @Story("Required Field Validation - Missing Email")
     @Test
@@ -449,112 +448,4 @@ import static org.hamcrest.Matchers.equalTo;
                     .body("success", equalTo(false))
                     .body("message", equalTo("All fields are required."));
         }
-
-        /*
-         * NEGATIVE TEST: Incomplete email format
-         *
-         * Purpose:
-         * Verifies that the POST /contact endpoint rejects an email
-         * address with an invalid format even when it contains the "@"
-         * character.
-         *
-         * The value "test@" is not a valid complete email address.
-         *
-         * Test flow:
-         * 1. Send a POST request to /contact.
-         * 2. Provide a valid name and message.
-         * 3. Use "test@" as the email value.
-         * 4. Expect HTTP 400.
-         * 5. Verify that success is false.
-         * 6. Verify the invalid-email validation message.
-         */
-        @Story("Email Format Validation - Incomplete Email")
-        @Test
-        public void contactEndpointShouldReturn400ForIncompleteEmail() {
-
-            given()
-                    .spec(RequestSpecFactory.contactRequestSpec())
-                    .formParam("name", "API Test")
-                    .formParam("email", "test@")
-                    .formParam("message", "Invalid email format API test")
-                    .when()
-                    .post("/contact")
-                    .then()
-                    .statusCode(400)
-                    .body("success", equalTo(false))
-                    .body("message", equalTo("Invalid email address."));
-        }
-
-        /*
-         * NEGATIVE TEST: Email missing local part
-         *
-         * Purpose:
-         * Verifies that the POST /contact endpoint rejects an email
-         * address that does not contain a local part before the "@"
-         * character.
-         *
-         * The value "@example.com" contains a domain but is not
-         * a valid email address because the local part is missing.
-         *
-         * Test flow:
-         * 1. Send a POST request to /contact.
-         * 2. Provide a valid name and message.
-         * 3. Use "@example.com" as the email value.
-         * 4. Expect HTTP 400.
-         * 5. Verify that success is false.
-         * 6. Verify the invalid-email validation message.
-         */
-        @Story("Email Format Validation - Missing Local Part")
-        @Test
-        public void contactEndpointShouldReturn400WhenEmailIsMissingLocalPart() {
-
-            given()
-                    .spec(RequestSpecFactory.contactRequestSpec())
-                    .formParam("name", "API Test")
-                    .formParam("email", "@example.com")
-                    .formParam("message", "Missing email local part API test")
-                    .when()
-                    .post("/contact")
-                    .then()
-                    .statusCode(400)
-                    .body("success", equalTo(false))
-                    .body("message", equalTo("Invalid email address."));
-        }
-
-        /*
-         * NEGATIVE TEST: Email missing top-level domain
-         *
-         * Purpose:
-         * Verifies that the POST /contact endpoint rejects an email
-         * address that does not contain a complete domain.
-         *
-         * The value "test@example" contains a local part and the "@"
-         * character, but it does not contain a dot followed by a
-         * top-level domain.
-         *
-         * Test flow:
-         * 1. Send a POST request to /contact.
-         * 2. Provide a valid name and message.
-         * 3. Use "test@example" as the email value.
-         * 4. Expect HTTP 400.
-         * 5. Verify that success is false.
-         * 6. Verify the invalid-email validation message.
-         */
-        @Story("Email Format Validation - Missing Top-Level Domain")
-        @Test
-        public void contactEndpointShouldReturn400WhenEmailIsMissingTopLevelDomain() {
-
-            given()
-                    .spec(RequestSpecFactory.contactRequestSpec())
-                    .formParam("name", "API Test")
-                    .formParam("email", "test@example")
-                    .formParam("message", "Missing top-level domain API test")
-                    .when()
-                    .post("/contact")
-                    .then()
-                    .statusCode(400)
-                    .body("success", equalTo(false))
-                    .body("message", equalTo("Invalid email address."));
-        }
-
 }
