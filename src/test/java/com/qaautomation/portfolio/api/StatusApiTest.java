@@ -1,6 +1,5 @@
 package com.qaautomation.portfolio.api;
 
-import com.qaautomation.portfolio.config.ConfigReader;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
@@ -8,9 +7,9 @@ import org.testng.annotations.Test;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
-@Epic("API Testing")
-@Feature("Status API")
-public class StatusApiTest {
+    @Epic("API Testing")
+    @Feature("Status API")
+    public class StatusApiTest extends BaseApiTest {
 
     /*
      * POSITIVE TEST: Application health check
@@ -38,7 +37,6 @@ public class StatusApiTest {
     public void statusEndpointShouldReturn200() {
 
         given()
-                .baseUri(ConfigReader.getBaseUrl())
                 .when()
                 .get("/api/status")
                 .then()

@@ -1,6 +1,5 @@
 package com.qaautomation.portfolio.api;
 
-import com.qaautomation.portfolio.config.ConfigReader;
 import com.qaautomation.portfolio.database.DatabaseHelper;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
@@ -12,9 +11,9 @@ import java.sql.SQLException;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
-@Epic("API Testing")
-@Feature("Contact API")
-public class ContactApiTest {
+    @Epic("API Testing")
+    @Feature("Contact API")
+    public class ContactApiTest extends BaseApiTest {
 
     /*
      * POSITIVE TEST: Successful contact form submission
@@ -49,7 +48,6 @@ public class ContactApiTest {
         try {
 
             given()
-                    .baseUri(ConfigReader.getBaseUrl())
                     .contentType("application/x-www-form-urlencoded")
                     .formParam("name", name)
                     .formParam("email", email)
@@ -98,7 +96,6 @@ public class ContactApiTest {
     public void contactEndpointShouldReturn400WhenNameIsMissing() {
 
         given()
-                .baseUri(ConfigReader.getBaseUrl())
                 .contentType("application/x-www-form-urlencoded")
                 .formParam("email", "negative@example.com")
                 .formParam("message", "Negative API test")
@@ -137,7 +134,6 @@ public class ContactApiTest {
     public void contactEndpointShouldReturn400WhenEmailIsInvalid() {
 
         given()
-                .baseUri(ConfigReader.getBaseUrl())
                 .contentType("application/x-www-form-urlencoded")
                 .formParam("name", "API Test")
                 .formParam("email", "invalid-email")
@@ -176,7 +172,6 @@ public class ContactApiTest {
     public void contactEndpointShouldReturn400WhenEmailIsMissing() {
 
         given()
-                .baseUri(ConfigReader.getBaseUrl())
                 .contentType("application/x-www-form-urlencoded")
                 .formParam("name", "API Test")
                 .formParam("message", "Missing email API test")
@@ -213,7 +208,6 @@ public class ContactApiTest {
     public void contactEndpointShouldReturn400WhenMessageIsMissing() {
 
         given()
-                .baseUri(ConfigReader.getBaseUrl())
                 .contentType("application/x-www-form-urlencoded")
                 .formParam("name", "API Test")
                 .formParam("email", "negative@example.com")
