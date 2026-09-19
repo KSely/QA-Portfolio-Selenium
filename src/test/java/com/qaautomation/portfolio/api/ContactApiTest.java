@@ -1,0 +1,228 @@
+package com.qaautomation.portfolio.api;
+
+import com.qaautomation.portfolio.config.ConfigReader;
+import com.qaautomation.portfolio.database.DatabaseHelper;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import java.sql.SQLException;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+
+@Epic("API Testing")
+@Feature("Contact API")
+public class ContactApiTest {
+
+    /*
+     * POSITIVE TEST: Successful contact form submission
+     *
+     * Purpose:
+     * Verifies the complete successful flow of the POST /contact endpoint.
+     *
+     * Test flow:
+     * 1. Generate unique test data so every test run uses a different email and message.
+     * 2. Send a POST request directly to the /contact API endpoint using REST Assured.
+     * 3. Send the same form-urlencoded data that the real contact form sends: name, email, and message.
+     * 4. Verify that the API returns HTTP 200.
+     * 5. Verify the JSON response:
+     *      success = true
+     *      message = "Message sent successfully!"
+     * 6. Query PostgreSQL using DatabaseHelper and verify that the submitted message was actually saved in the database.
+     * 7. Delete the test record in the finally block so the database remains clean even if an assertion fails.
+     *
+     * This test validates the integration:
+     * REST Assured -> Express API -> PostgreSQL -> JDBC verification.
+     */
+    @Story("Successful Contact Submission")
+    @Test
+    public void contactEndpointShouldSubmitMessageSuccessfully() throws SQLException {
+
+        String uniqueId = String.valueOf(System.currentTimeMillis());
+
+        String name = "API Test";
+        String email = "apitest" + uniqueId + "@example.com";
+        String message = "REST Assured test message " + uniqueId;
+
+        try {
+
+            given()
+                    .baseUri(ConfigReader.getBaseUrl())
+                    .contentType("application/x-www-form-urlencoded")
+                    .formParam("name", name)
+                    .formParam("email", email)
+                    .formParam("message", message)
+                    .when()
+                    .post("/contact")
+                    .then()
+                    .statusCode(200)
+                    .body("success", equalTo(true))
+                    .body("message", equalTo("Message sent successfully!"));
+
+            boolean exists = DatabaseHelper.messageExists(email, message);
+
+            Assert.assertTrue(
+                    exists,
+                    "Submitted API message should exist in the database"
+            );
+
+        } finally {
+            DatabaseHelper.deleteMessage(email, message);
+        }
+    }
+
+    /*
+     * NEGATIVE TEST: Missing required name
+     *
+     * Purpose:
+     * Verifies backend validation when the required "name" field
+     * is not included in the request.
+     *
+     * We send:
+     *   email   -> valid
+     *   message -> valid
+     *   name    -> NOT sent
+     *
+     * Expected result:
+     *   HTTP 400
+     *   success = false
+     *   message = "All fields are required."
+     *
+     * No database cleanup is required because the backend rejects
+     * the request before the INSERT statement is executed.
+     */
+    @Story("Required Field Validation - Missing Name")
+    @Test
+    public void contactEndpointShouldReturn400WhenNameIsMissing() {
+
+        given()
+                .baseUri(ConfigReader.getBaseUrl())
+                .contentType("application/x-www-form-urlencoded")
+                .formParam("email", "negative@example.com")
+                .formParam("message", "Negative API test")
+                .when()
+                .post("/contact")
+                .then()
+                .statusCode(400)
+                .body("success", equalTo(false))
+                .body("message", equalTo("All fields are required."));
+    }
+
+    /*
+     * NEGATIVE TEST: Invalid email address
+     *
+     * Purpose:
+     * Verifies the separate email validation implemented by the backend.
+     *
+     * All required fields are provided, but the email does not contain "@",
+     * so it should fail the email validation rule.
+     *
+     * We send:
+     *   name    -> valid
+     *   email   -> "invalid-email"
+     *   message -> valid
+     *
+     * Expected result:
+     *   HTTP 400
+     *   success = false
+     *   message = "Invalid email address."
+     *
+     * This is different from the missing-email test:
+     * the email field exists, but its value is invalid.
+     */
+    @Story("Email Validation - Invalid Email")
+    @Test
+    public void contactEndpointShouldReturn400WhenEmailIsInvalid() {
+
+        given()
+                .baseUri(ConfigReader.getBaseUrl())
+                .contentType("application/x-www-form-urlencoded")
+                .formParam("name", "API Test")
+                .formParam("email", "invalid-email")
+                .formParam("message", "Invalid email API test")
+                .when()
+                .post("/contact")
+                .then()
+                .statusCode(400)
+                .body("success", equalTo(false))
+                .body("message", equalTo("Invalid email address."));
+    }
+
+    /*
+     * NEGATIVE TEST: Missing required email
+     *
+     * Purpose:
+     * Verifies backend validation when the required "email" field
+     * is completely missing from the request.
+     *
+     * We send:
+     *   name    -> valid
+     *   message -> valid
+     *   email   -> NOT sent
+     *
+     * Expected result:
+     *   HTTP 400
+     *   success = false
+     *   message = "All fields are required."
+     *
+     * This test verifies required-field validation, while
+     * contactEndpointShouldReturn400WhenEmailIsInvalid()
+     * verifies email-format validation.
+     */
+    @Story("Required Field Validation - Missing Email")
+    @Test
+    public void contactEndpointShouldReturn400WhenEmailIsMissing() {
+
+        given()
+                .baseUri(ConfigReader.getBaseUrl())
+                .contentType("application/x-www-form-urlencoded")
+                .formParam("name", "API Test")
+                .formParam("message", "Missing email API test")
+                .when()
+                .post("/contact")
+                .then()
+                .statusCode(400)
+                .body("success", equalTo(false))
+                .body("message", equalTo("All fields are required."));
+    }
+
+    /*
+     * NEGATIVE TEST: Missing required message
+     *
+     * Purpose:
+     * Verifies backend validation when the required "message" field
+     * is not included in the request.
+     *
+     * We send:
+     *   name    -> valid
+     *   email   -> valid
+     *   message -> NOT sent
+     *
+     * Expected result:
+     *   HTTP 400
+     *   success = false
+     *   message = "All fields are required."
+     *
+     * No database record should be created because validation fails
+     * before the backend executes the INSERT statement.
+     */
+    @Story("Required Field Validation - Missing Message")
+    @Test
+    public void contactEndpointShouldReturn400WhenMessageIsMissing() {
+
+        given()
+                .baseUri(ConfigReader.getBaseUrl())
+                .contentType("application/x-www-form-urlencoded")
+                .formParam("name", "API Test")
+                .formParam("email", "negative@example.com")
+                .when()
+                .post("/contact")
+                .then()
+                .statusCode(400)
+                .body("success", equalTo(false))
+                .body("message", equalTo("All fields are required."));
+    }
+
+}
