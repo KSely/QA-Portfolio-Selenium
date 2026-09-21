@@ -52,11 +52,13 @@ import static org.hamcrest.Matchers.equalTo;
         @Story("Required Field Validation - Empty and Whitespace Values")
         @Test(dataProvider = "invalidRequiredFieldValues")
         public void contactEndpointShouldReturn400ForInvalidRequiredFieldValue(
-                String fieldName, String invalidValue) {
+                String fieldName, String invalidValue) throws SQLException {
+
+            String uniqueId = String.valueOf(System.currentTimeMillis());
 
             String name = "API Test";
-            String email = "negative@example.com";
-            String message = "Required field validation API test";
+            String email = "negative" + uniqueId + "@example.com";
+            String message = "Required field validation API test " + uniqueId;
 
             switch (fieldName) {
                 case "name" -> name = invalidValue;
@@ -78,6 +80,12 @@ import static org.hamcrest.Matchers.equalTo;
                     .statusCode(400)
                     .body("success", equalTo(false))
                     .body("message", equalTo("All fields are required."));
+            boolean exists = DatabaseHelper.messageExists(email, message);
+
+            Assert.assertFalse(
+                    exists,
+                    "Rejected API message should not exist in the database"
+            );
         }
 
         /*
@@ -92,19 +100,29 @@ import static org.hamcrest.Matchers.equalTo;
          */
         @Story("Email Format Validation - Invalid Formats")
         @Test(dataProvider = "invalidEmails")
-        public void contactEndpointShouldReturn400ForInvalidEmailFormats(String email) {
+        public void contactEndpointShouldReturn400ForInvalidEmailFormats(String email) throws SQLException {
+
+            String uniqueId = String.valueOf(System.currentTimeMillis());
+            String message = "Invalid email format data-driven test " + uniqueId;
 
             given()
                     .spec(RequestSpecFactory.contactRequestSpec())
                     .formParam("name", "API Test")
                     .formParam("email", email)
-                    .formParam("message", "Invalid email format data-driven test")
+                    .formParam("message", message)
                     .when()
                     .post("/contact")
                     .then()
                     .statusCode(400)
                     .body("success", equalTo(false))
                     .body("message", equalTo("Invalid email address."));
+
+            boolean exists = DatabaseHelper.messageExists(email, message);
+
+            Assert.assertFalse(
+                    exists,
+                    "Rejected API message should not exist in the database"
+            );
         }
 
     /*
@@ -116,13 +134,16 @@ import static org.hamcrest.Matchers.equalTo;
      * Test flow:
      * 1. Generate unique test data so every test run uses a different email and message.
      * 2. Send a POST request directly to the /contact API endpoint using REST Assured.
-     * 3. Send the same form-urlencoded data that the real contact form sends: name, email, and message.
+     * 3. Send the same form-urlencoded data that the real contact form sends:
+     *    name, email, and message.
      * 4. Verify that the API returns HTTP 200.
      * 5. Verify the JSON response:
      *      success = true
      *      message = "Message sent successfully!"
-     * 6. Query PostgreSQL using DatabaseHelper and verify that the submitted message was actually saved in the database.
-     * 7. Delete the test record in the finally block so the database remains clean even if an assertion fails.
+     * 6. Query PostgreSQL using DatabaseHelper and verify that the submitted
+     *    message was actually saved in the database.
+     * 7. Delete the test record in the finally block so the database remains
+     *    clean even if an assertion fails.
      *
      * This test validates the integration:
      * REST Assured -> Express API -> PostgreSQL -> JDBC verification.
@@ -165,24 +186,27 @@ import static org.hamcrest.Matchers.equalTo;
 
     /*
      * NEGATIVE TEST: Missing required name
-     *
-     * Purpose:
-     * Verifies backend validation when the required "name" field
-     * is not included in the request.
-     *
-     * We send:
-     *   email   -> valid
-     *   message -> valid
-     *   name    -> NOT sent
-     *
-     * Expected result:
-     *   HTTP 400
-     *   success = false
-     *   message = "All fields are required."
-     *
-     * No database cleanup is required because the backend rejects
-     * the request before the INSERT statement is executed.
-     */
+
+        /*
+         * NEGATIVE TEST: Missing required name
+         *
+         * Purpose:
+         * Verifies backend validation when the required "name" field
+         * is not included in the request.
+         *
+         * We send:
+         *   email   -> valid
+         *   message -> valid
+         *   name    -> NOT sent
+         *
+         * Expected result:
+         *   HTTP 400
+         *   success = false
+         *   message = "All fields are required."
+         *
+         * No database cleanup is required because the backend rejects
+         * the request before the INSERT statement is executed.
+         */
     @Story("Required Field Validation - Missing Name")
     @Test
     public void contactEndpointShouldReturn400WhenNameIsMissing() {
