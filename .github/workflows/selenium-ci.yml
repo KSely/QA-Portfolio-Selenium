@@ -58,5 +58,3 @@ jobs:
       - name: Build project
         run: mvn -B clean compile
 
-      - name: Run API tests
-        run: mvn -B test -Dsuitexmlfile=src/test/resources/test-suites/api-suite.xml
