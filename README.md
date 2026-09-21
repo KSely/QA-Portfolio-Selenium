@@ -70,7 +70,7 @@ src
     └── resources
         ├── test-suites   # TestNG suite configuration
         └── environment.properties
-
+```
 
 ## Test Suites
 
