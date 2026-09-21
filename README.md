@@ -14,6 +14,7 @@ The project demonstrates practical automation testing across multiple layers of 
 - Maven
 - Allure Report
 - Git / GitHub
+- GitHub Actions
 
 ## Project Overview
 
@@ -197,6 +198,34 @@ Database assertions were used to verify that rejected requests were not persiste
 
 ## CI/CD
 
-Continuous Integration with GitHub Actions is planned for this project.
+The project uses GitHub Actions for Continuous Integration.
 
-The CI workflow will be configured to automatically execute selected automated tests on repository changes.
+The CI workflow is triggered automatically on pushes and pull requests to the `main` branch.
+
+The current pipeline:
+
+1. Runs on a GitHub-hosted Ubuntu runner
+2. Starts a PostgreSQL 16 service container
+3. Creates the test configuration from `config.properties.example`
+4. Initializes the required database schema
+5. Sets up Java 25 and Maven dependencies
+6. Compiles the automation framework with Maven
+
+Current CI workflow:
+
+```text
+Push / Pull Request
+        ↓
+GitHub Actions
+        ↓
+Ubuntu Runner
+        ↓
+PostgreSQL 16
+        ↓
+Test Configuration
+        ↓
+Database Schema
+        ↓
+Maven Build
+        ↓
+Build Verification
