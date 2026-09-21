@@ -1,0 +1,8 @@
+# Application configuration
+baseUrl=http://localhost:3000
+browser=chrome
+
+# PostgreSQL configuration
+dbUrl=jdbc:postgresql://localhost:5432/qa_portfolio
+dbUser=postgres
+dbPassword=your_database_password
