@@ -184,9 +184,6 @@ import static org.hamcrest.Matchers.equalTo;
         }
     }
 
-    /*
-     * NEGATIVE TEST: Missing required name
-
         /*
          * NEGATIVE TEST: Missing required name
          *
@@ -207,22 +204,33 @@ import static org.hamcrest.Matchers.equalTo;
          * No database cleanup is required because the backend rejects
          * the request before the INSERT statement is executed.
          */
-    @Story("Required Field Validation - Missing Name")
-    @Test
-    public void contactEndpointShouldReturn400WhenNameIsMissing() {
+        @Story("Required Field Validation - Missing Name")
+        @Test
+        public void contactEndpointShouldReturn400WhenNameIsMissing() throws SQLException {
 
-        given()
-                .spec(RequestSpecFactory.contactRequestSpec())
-                .formParam("email", "negative@example.com")
-                .formParam("message", "Negative API test")
-                .when()
-                .post("/contact")
-                .then()
-                .statusCode(400)
-                .body("success", equalTo(false))
-                .body("message", equalTo("All fields are required."));
-    }
+            String uniqueId = String.valueOf(System.currentTimeMillis());
 
+            String email = "negative" + uniqueId + "@example.com";
+            String message = "Missing name API test " + uniqueId;
+
+            given()
+                    .spec(RequestSpecFactory.contactRequestSpec())
+                    .formParam("email", email)
+                    .formParam("message", message)
+                    .when()
+                    .post("/contact")
+                    .then()
+                    .statusCode(400)
+                    .body("success", equalTo(false))
+                    .body("message", equalTo("All fields are required."));
+
+            boolean exists = DatabaseHelper.messageExists(email, message);
+
+            Assert.assertFalse(
+                    exists,
+                    "Rejected API message should not exist in the database"
+            );
+        }
 
     /*
      * NEGATIVE TEST: Missing required email
@@ -247,18 +255,30 @@ import static org.hamcrest.Matchers.equalTo;
      */
     @Story("Required Field Validation - Missing Email")
     @Test
-    public void contactEndpointShouldReturn400WhenEmailIsMissing() {
+    public void contactEndpointShouldReturn400WhenEmailIsMissing() throws SQLException {
+
+        String uniqueId = String.valueOf(System.currentTimeMillis());
+
+        String name = "API Test";
+        String message = "Missing email API test " + uniqueId;
 
         given()
                 .spec(RequestSpecFactory.contactRequestSpec())
-                .formParam("name", "API Test")
-                .formParam("message", "Missing email API test")
+                .formParam("name", name)
+                .formParam("message", message)
                 .when()
                 .post("/contact")
                 .then()
                 .statusCode(400)
                 .body("success", equalTo(false))
                 .body("message", equalTo("All fields are required."));
+        boolean exists = DatabaseHelper.messageExistsByMessage(message);
+
+        Assert.assertFalse(
+                exists,
+                "Rejected API message should not exist in the database"
+        );
+
     }
 
     /*
@@ -283,17 +303,29 @@ import static org.hamcrest.Matchers.equalTo;
      */
     @Story("Required Field Validation - Missing Message")
     @Test
-    public void contactEndpointShouldReturn400WhenMessageIsMissing() {
+    public void contactEndpointShouldReturn400WhenMessageIsMissing() throws SQLException {
+
+        String uniqueId = String.valueOf(System.currentTimeMillis());
+
+        String name = "API Test";
+        String email = "negative" + uniqueId + "@example.com";
 
         given()
                 .spec(RequestSpecFactory.contactRequestSpec())
-                .formParam("name", "API Test")
-                .formParam("email", "negative@example.com")
+                .formParam("name", name)
+                .formParam("email", email)
                 .when()
                 .post("/contact")
                 .then()
                 .statusCode(400)
                 .body("success", equalTo(false))
                 .body("message", equalTo("All fields are required."));
+
+        boolean exists = DatabaseHelper.messageExistsByEmail(email);
+
+        Assert.assertFalse(
+                exists,
+                "Rejected API message should not exist in the database"
+        );
     }
 }

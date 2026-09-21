@@ -30,6 +30,36 @@ public class DatabaseHelper {
         }
     }
 
+    public static boolean messageExistsByMessage(String message) throws SQLException {
+
+        String sql = "SELECT 1 FROM messages WHERE message = ?";
+
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, message);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next();
+            }
+        }
+    }
+
+    public static boolean messageExistsByEmail(String email) throws SQLException {
+
+        String sql = "SELECT 1 FROM messages WHERE email = ?";
+
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, email);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next();
+            }
+        }
+    }
+
     public static void deleteMessage(String email, String message) throws SQLException {
 
         String sql = "DELETE FROM messages WHERE email = ? AND message = ?";
