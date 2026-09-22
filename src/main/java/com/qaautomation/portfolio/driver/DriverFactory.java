@@ -7,14 +7,18 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 
 public class DriverFactory {
 
+    // Create a driver for the selected browser.
     public WebDriver createDriver(String browser) {
+
+        // Remove extra spaces and use lowercase.
         browser = browser.trim().toLowerCase();
 
         return switch (browser) {
             case "chrome" -> new ChromeDriver();
             case "firefox" -> new FirefoxDriver();
             case "edge" -> new EdgeDriver();
-            default -> throw new IllegalArgumentException("Unsupported browser: " + browser
+            default -> throw new IllegalArgumentException(
+                    "Unsupported browser: " + browser
             );
         };
     }

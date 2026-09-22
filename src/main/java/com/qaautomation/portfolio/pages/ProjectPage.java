@@ -7,6 +7,8 @@ import org.openqa.selenium.WebDriver;
 public class ProjectPage extends BasePage {
 
     private static final String URL = ConfigReader.getBaseUrl() + "/project";
+
+    // Page elements.
     private final By overviewSection = By.id("overview");
     private final By architectureSection = By.id("architecture");
     private final By architectureNavLink = By.cssSelector("a[href='#architecture']");
@@ -104,7 +106,4 @@ public class ProjectPage extends BasePage {
     public boolean isDatabaseTestingUrlFragmentPresent() {
         return driver.getCurrentUrl().contains("#database-testing");
     }
-
-
-
 }

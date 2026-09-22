@@ -10,6 +10,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
 public class BasePage {
+
     protected WebDriver driver;
     protected WebDriverWait wait;
 
@@ -18,16 +19,21 @@ public class BasePage {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
+    // Open a page by URL.
     protected void open(String url) {
         driver.get(url);
     }
 
+    // Scroll to the element and click it.
     protected void click(By locator) {
         WebElement element =
                 wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
 
         ((JavascriptExecutor) driver)
-                .executeScript("arguments[0].scrollIntoView({behavior: 'instant', block: 'center'});", element);
+                .executeScript(
+                        "arguments[0].scrollIntoView({behavior: 'instant', block: 'center'});",
+                        element
+                );
 
         wait.until(ExpectedConditions.elementToBeClickable(element)).click();
     }

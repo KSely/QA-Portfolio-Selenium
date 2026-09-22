@@ -1,8 +1,8 @@
 # QA Portfolio - Selenium Automation Framework
 
-A comprehensive QA automation framework built with Java and Selenium WebDriver for testing a full-stack portfolio web application.
+A QA automation framework built with Java and Selenium WebDriver for testing a full-stack portfolio web application.
 
-The project demonstrates practical automation testing across multiple layers of the application, including UI, API, and database validation.
+The project demonstrates automated testing across multiple application layers, including UI, API, and database validation.
 
 ## Tech Stack
 
@@ -20,13 +20,13 @@ The project demonstrates practical automation testing across multiple layers of 
 
 This repository contains an automated testing framework created for a full-stack QA portfolio web application.
 
-The framework demonstrates testing across multiple application layers:
+The framework includes:
 
 - **UI Testing** — automated browser testing using Selenium WebDriver
 - **API Testing** — REST API validation using REST Assured
 - **Database Testing** — PostgreSQL validation using JDBC
-- **Cross-Browser Testing** — automated execution in Chrome, Firefox, and Edge
-- **Test Reporting** — Allure reports with test suites, features, stories, and environment information
+- **Cross-Browser Testing** — UI test execution in Chrome, Firefox, and Edge
+- **Test Reporting** — Allure reporting with test results, environment information, and failure screenshots
 
 The framework follows the Page Object Model (POM) design pattern and uses reusable components for browser management, configuration, API requests, and database operations.
 
@@ -52,7 +52,8 @@ src
 │   │   ├── driver        # WebDriver creation and browser management
 │   │   └── pages         # Page Object Model classes
 │   └── resources
-│       └── config.properties   # Local configuration (not committed)
+│       ├── config.properties           # Local configuration (not committed)
+│       └── config.properties.example   # Configuration template
 │
 └── test
     ├── java/com/qaautomation/portfolio
@@ -69,7 +70,11 @@ src
     │       └── ProjectPageTest
     │
     └── resources
-        ├── test-suites   # TestNG suite configuration
+        ├── test-suites
+        │   ├── api-suite.xml
+        │   ├── cross-browser-suite.xml
+        │   ├── regression-suite.xml
+        │   └── smoke-suite.xml
         └── environment.properties
 ```
 
@@ -78,8 +83,8 @@ src
 The framework uses TestNG XML suites to support different test execution strategies:
 
 - **Smoke Suite** — runs a focused set of critical UI tests
-- **Regression Suite** — runs the complete UI regression test suite
-- **Cross-Browser Suite** — executes the UI regression tests across Chrome, Firefox, and Edge
+- **Regression Suite** — runs the complete UI regression suite
+- **Cross-Browser Suite** — runs the UI tests across Chrome, Firefox, and Edge
 - **API Suite** — runs REST Assured API tests independently from UI tests
 
 ## Running the Tests
@@ -90,14 +95,22 @@ Before running the tests, make sure the following are installed and available:
 
 - Java 25
 - Maven
-- Google Chrome, Mozilla Firefox, or Microsoft Edge
+- Google Chrome, Mozilla Firefox, and/or Microsoft Edge
 - PostgreSQL for database-related tests
 - The portfolio web application running locally on `http://localhost:3000`
 
-### Run the Regression Suite
+### Run the UI Regression Suite
+
+The regression suite is configured as the default Maven test suite:
 
 ```bash
 mvn clean test
+```
+
+### Run the Smoke Suite
+
+```bash
+mvn clean test -Dsuitexmlfile=src/test/resources/test-suites/smoke-suite.xml
 ```
 
 ### Run the API Suite
@@ -116,9 +129,7 @@ mvn clean test -Dsuitexmlfile=src/test/resources/test-suites/cross-browser-suite
 
 The framework uses a local `config.properties` file for application and database configuration.
 
-For security reasons, `config.properties` is excluded from version control and is not committed to the repository.
-
-A configuration template is provided:
+For security reasons, `config.properties` is excluded from version control. A configuration template is provided at:
 
 ```text
 src/main/resources/config.properties.example
@@ -141,7 +152,7 @@ dbUser=postgres
 dbPassword=your_database_password
 ```
 
-Never commit real database credentials to version control.
+Do not commit real database credentials to version control.
 
 ## Allure Reporting
 
@@ -166,7 +177,7 @@ The `allure-results` directory is generated locally and excluded from version co
 
 ## Key Testing Scenarios
 
-The framework covers practical end-to-end quality scenarios, including:
+The framework covers practical quality scenarios, including:
 
 - Navigation and content validation across the portfolio web application
 - Contact form submission through the UI
@@ -176,17 +187,17 @@ The framework covers practical end-to-end quality scenarios, including:
 - PostgreSQL verification after successful UI and API submissions
 - Verification that rejected API requests are not persisted in the database
 - Self-contained database integration testing with automatic test data cleanup
-- Cross-browser regression testing across Chrome, Firefox, and Edge
+- Cross-browser UI testing across Chrome, Firefox, and Edge
 
 ## Defects Found by Automation
 
-Automated API testing identified real validation defects in the contact endpoint during framework development.
+Automated API testing identified validation defects in the contact endpoint during framework development.
 
 ### Whitespace Validation
 
-Automated negative tests revealed that whitespace-only values could pass required-field validation and be persisted in PostgreSQL.
+Negative API tests revealed that whitespace-only values could pass required-field validation and be persisted in PostgreSQL.
 
-The backend validation was updated to reject missing, empty, and whitespace-only values. The regression suite was then executed to verify the fix and prevent regressions.
+The backend validation was updated to reject missing, empty, and whitespace-only values. Regression tests were then used to verify the fix.
 
 ### Email Format Validation
 
@@ -194,24 +205,22 @@ API automation also identified that incomplete email addresses such as `test@` w
 
 The validation logic was improved, and additional data-driven test cases were added for invalid email formats.
 
-Database assertions were used to verify that rejected requests were not persisted.
+Database assertions verify that rejected requests are not persisted.
 
 ## CI/CD
 
 The project uses GitHub Actions for Continuous Integration.
 
-The CI workflow is triggered automatically on pushes and pull requests to the `main` branch.
+The workflow is triggered automatically on pushes and pull requests to the `main` branch.
 
-The current pipeline:
+The current CI workflow:
 
 1. Runs on a GitHub-hosted Ubuntu runner
 2. Starts a PostgreSQL 16 service container
-3. Creates the test configuration from `config.properties.example`
-4. Initializes the required database schema
-5. Sets up Java 25 and Maven dependencies
-6. Compiles the automation framework with Maven
-
-Current CI workflow:
+3. Sets up Java 25 with Maven dependency caching
+4. Creates the test configuration from `config.properties.example`
+5. Initializes the required PostgreSQL database schema
+6. Performs a Maven build and compile check
 
 ```text
 Push / Pull Request
@@ -219,6 +228,8 @@ Push / Pull Request
 GitHub Actions
         ↓
 Ubuntu Runner
+        ↓
+Java 25
         ↓
 PostgreSQL 16
         ↓
@@ -229,3 +240,8 @@ Database Schema
 Maven Build
         ↓
 Build Verification
+```
+
+The full Selenium regression suite currently runs locally because the application under test is hosted locally.
+
+A future CI improvement would be to start the application on the GitHub runner and execute the full Selenium test suite as part of the pipeline.

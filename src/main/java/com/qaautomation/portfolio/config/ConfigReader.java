@@ -5,6 +5,7 @@ import java.util.Properties;
 
 public class ConfigReader {
 
+    // Store values from config.properties.
     private static final Properties properties = new Properties();
 
     static {
@@ -25,7 +26,6 @@ public class ConfigReader {
     public static String getBaseUrl() {
         return properties.getProperty("baseUrl");
     }
-
 
     public static String getBrowser() {
         return properties.getProperty("browser");

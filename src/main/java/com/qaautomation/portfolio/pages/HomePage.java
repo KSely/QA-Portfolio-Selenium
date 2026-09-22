@@ -14,6 +14,7 @@ public class HomePage extends BasePage {
 
     private static final String URL = ConfigReader.getBaseUrl();
 
+    // Page elements.
     private final By skillsButton = By.id("skills-button");
     private final By projectButton = By.id("project-button");
     private final By heroImage = By.id("hero-image");
@@ -37,6 +38,7 @@ public class HomePage extends BasePage {
     public void openHomePage() {
         open(URL);
     }
+
     public void clickSkillsButton() {
         driver.findElement(skillsButton).click();
     }
@@ -86,6 +88,7 @@ public class HomePage extends BasePage {
         return driver.findElement(messageInput).getAttribute("value");
     }
 
+    // Fill all fields in the contact form.
     public void fillContactForm(String name, String email, String message) {
         enterName(name);
         enterEmail(email);
@@ -99,19 +102,23 @@ public class HomePage extends BasePage {
     public boolean isSuccessMessageDisplayed() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(successMessage)).isDisplayed();
+        return wait.until(
+                ExpectedConditions.visibilityOfElementLocated(successMessage)
+        ).isDisplayed();
     }
 
     public boolean isNameFieldRequired() {
         return driver.findElement(nameInput).getAttribute("required") != null;
     }
 
+    // Check browser validation for the name field.
     public boolean isNameValueMissing() {
         WebElement nameField = driver.findElement(nameInput);
         JavascriptExecutor js = (JavascriptExecutor) driver;
 
         return (Boolean) js.executeScript(
-                "return arguments[0].validity.valueMissing;", nameField);
+                "return arguments[0].validity.valueMissing;", nameField
+        );
     }
 
     public boolean isEmailTypeMismatch() {
@@ -119,7 +126,8 @@ public class HomePage extends BasePage {
         JavascriptExecutor js = (JavascriptExecutor) driver;
 
         return (Boolean) js.executeScript(
-                "return arguments[0].validity.typeMismatch;", emailField);
+                "return arguments[0].validity.typeMismatch;", emailField
+        );
     }
 
     public boolean isEmailValueMissing() {
@@ -127,10 +135,13 @@ public class HomePage extends BasePage {
         JavascriptExecutor js = (JavascriptExecutor) driver;
 
         Object result = js.executeScript(
-                "return arguments[0].validity.valueMissing;", emailField);
+                "return arguments[0].validity.valueMissing;", emailField
+        );
+
         return Boolean.TRUE.equals(result);
     }
 
+    // Check browser validation for the message field.
     public boolean isMessageValueMissing() {
         WebElement messageField = driver.findElement(messageInput);
         JavascriptExecutor js = (JavascriptExecutor) driver;

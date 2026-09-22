@@ -56,6 +56,7 @@ public class HomePageTest extends BaseTest {
     public void nameFieldShouldAcceptText() {
         homePage.openHomePage();
         homePage.enterName("Test");
+
         Assert.assertEquals(homePage.getNameValue(), "Test");
     }
 
@@ -64,6 +65,7 @@ public class HomePageTest extends BaseTest {
     public void emailFieldShouldAcceptText() {
         homePage.openHomePage();
         homePage.enterEmail("test@example.com");
+
         Assert.assertEquals(homePage.getEmailValue(), "test@example.com");
     }
 
@@ -72,6 +74,7 @@ public class HomePageTest extends BaseTest {
     public void messageFieldShouldAcceptText() {
         homePage.openHomePage();
         homePage.enterMessage("Test message");
+
         Assert.assertEquals(homePage.getMessageValue(), "Test message");
     }
 
@@ -80,6 +83,7 @@ public class HomePageTest extends BaseTest {
     @Test(groups = "smoke")
     public void contactFormShouldSubmitSuccessfully() throws SQLException {
 
+        // Use unique data for each test run.
         String uniqueId = String.valueOf(System.currentTimeMillis());
 
         String name = "Test";
@@ -87,28 +91,29 @@ public class HomePageTest extends BaseTest {
         String message = "Test message from Selenium " + uniqueId;
 
         try {
-        homePage.openHomePage();
-        homePage.fillContactForm(name, email, message);
-        homePage.clickSendMessageButton();
+            homePage.openHomePage();
+            homePage.fillContactForm(name, email, message);
+            homePage.clickSendMessageButton();
 
-        Assert.assertTrue(homePage.isSuccessMessageDisplayed());
-        Assert.assertTrue(DatabaseHelper.messageExists(email, message),
-                "Submitted message should exist in the database"
-        );
+            Assert.assertTrue(homePage.isSuccessMessageDisplayed());
+            Assert.assertTrue(
+                    DatabaseHelper.messageExists(email, message),
+                    "Submitted message should exist in the database"
+            );
         } finally {
+            // Remove test data from the database.
             DatabaseHelper.deleteMessage(email, message);
         }
     }
 
-    //negative test
     @Story("Contact Form Validation")
     @Test
     public void nameFieldShouldBeRequired() {
         homePage.openHomePage();
+
         Assert.assertTrue(homePage.isNameFieldRequired());
     }
 
-    //negative test
     @Story("Contact Form Validation")
     @Test
     public void contactFormShouldNotSubmitWhenNameIsEmpty() {
@@ -116,10 +121,10 @@ public class HomePageTest extends BaseTest {
         homePage.enterEmail("test@example.com");
         homePage.enterMessage("Test message");
         homePage.clickSendMessageButton();
+
         Assert.assertTrue(homePage.isNameValueMissing());
     }
 
-    //negative test
     @Story("Contact Form Validation")
     @Test
     public void contactFormShouldNotSubmitWithInvalidEmail() {
@@ -128,10 +133,10 @@ public class HomePageTest extends BaseTest {
         homePage.enterEmail("kateexample.com");
         homePage.enterMessage("Test message");
         homePage.clickSendMessageButton();
+
         Assert.assertTrue(homePage.isEmailTypeMismatch());
     }
 
-    //negative test
     @Story("Contact Form Validation")
     @Test
     public void contactFormShouldNotSubmitWhenEmailIsEmpty() {
@@ -139,10 +144,10 @@ public class HomePageTest extends BaseTest {
         homePage.enterName("Test");
         homePage.enterMessage("Test message");
         homePage.clickSendMessageButton();
+
         Assert.assertTrue(homePage.isEmailValueMissing());
     }
 
-    // negative test
     @Story("Contact Form Validation")
     @Test
     public void contactFormShouldNotSubmitWhenMessageIsEmpty() {
@@ -150,7 +155,7 @@ public class HomePageTest extends BaseTest {
         homePage.enterName("Test");
         homePage.enterEmail("test@example.com");
         homePage.clickSendMessageButton();
+
         Assert.assertTrue(homePage.isMessageValueMissing());
     }
-
 }

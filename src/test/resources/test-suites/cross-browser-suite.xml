@@ -6,23 +6,26 @@
 
     <test name="Chrome Tests">
         <parameter name="browser" value="chrome"/>
-        <packages>
-            <package name="com.qaautomation.portfolio.tests"/>
-        </packages>
+        <classes>
+            <class name="com.qaautomation.portfolio.tests.HomePageTest"/>
+            <class name="com.qaautomation.portfolio.tests.ProjectPageTest"/>
+        </classes>
     </test>
 
     <test name="Firefox Tests">
         <parameter name="browser" value="firefox"/>
-        <packages>
-            <package name="com.qaautomation.portfolio.tests"/>
-        </packages>
+        <classes>
+            <class name="com.qaautomation.portfolio.tests.HomePageTest"/>
+            <class name="com.qaautomation.portfolio.tests.ProjectPageTest"/>
+        </classes>
     </test>
 
     <test name="Edge Tests">
         <parameter name="browser" value="edge"/>
-        <packages>
-            <package name="com.qaautomation.portfolio.tests"/>
-        </packages>
+        <classes>
+            <class name="com.qaautomation.portfolio.tests.HomePageTest"/>
+            <class name="com.qaautomation.portfolio.tests.ProjectPageTest"/>
+        </classes>
     </test>
 
 </suite>
