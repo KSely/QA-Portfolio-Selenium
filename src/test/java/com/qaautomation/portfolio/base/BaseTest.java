@@ -21,21 +21,13 @@ public class BaseTest {
     @Parameters("browser")
     public void setUp(@Optional("chrome") String browser) {
 
-        // Create the WebDriver for the selected browser.
-        //DriverFactory driverFactory = new DriverFactory();
-       // driver = driverFactory.createDriver(browser);
-
-        //driver.manage().window().maximize();
-
-       // DriverFactory driverFactory = new DriverFactory();
-        //driver = driverFactory.createDriver(browser);
-
-
             // Create the WebDriver for the selected browser.
             DriverFactory driverFactory = new DriverFactory();
             driver = driverFactory.createDriver(browser);
 
+        if (System.getenv("CI") == null) {
             driver.manage().window().maximize();
+        }
 
             // Diagnostic output for browser window and viewport size.
             System.out.println("Window size: " + driver.manage().window().getSize());
