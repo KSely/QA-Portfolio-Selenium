@@ -30,6 +30,7 @@ public class DriverFactory {
 
         if (System.getenv("CI") != null) {
             options.addArguments("--headless=new");
+            options.addArguments("--window-size=1920,1080");
         }
 
         return new ChromeDriver(options);
