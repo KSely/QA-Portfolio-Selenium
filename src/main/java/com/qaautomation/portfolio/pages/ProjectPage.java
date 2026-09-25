@@ -32,27 +32,27 @@ public class ProjectPage extends BasePage {
     }
 
     public void clickArchitectureLink() {
-        click(architectureNavLink);
+        driver.findElement(architectureNavLink).click();
     }
 
     public void clickTechStackLink() {
-        click(techStackNavLink);
+        driver.findElement(techStackNavLink).click();
     }
 
     public void clickQaStackLink() {
-        click(qaStackNavLink);
+        driver.findElement(qaStackNavLink).click();
     }
 
     public void clickApiTestingLink() {
-        click(apiTestingNavLink);
-    }
-
-    public void clickTestStrategyLink() {
-        click(testStrategyNavLink);
+        driver.findElement(apiTestingNavLink).click();
     }
 
     public void clickDatabaseTestingLink() {
-        click(databaseTestingNavLink);
+        driver.findElement(databaseTestingNavLink).click();
+    }
+
+    public void clickTestStrategyLink() {
+        driver.findElement(testStrategyNavLink).click();
     }
 
     public boolean isOverviewSectionDisplayed() {
