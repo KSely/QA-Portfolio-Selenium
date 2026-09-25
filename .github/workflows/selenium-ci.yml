@@ -100,3 +100,6 @@ jobs:
       - name: Run API tests
         run: mvn -B test -Dsuitexmlfile=src/test/resources/test-suites/api-suite.xml
 
+      - name: Run database tests
+        run: mvn -B test -Dsuitexmlfile=src/test/resources/test-suites/database-suite.xml
+
