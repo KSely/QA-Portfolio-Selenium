@@ -109,3 +109,11 @@ jobs:
       - name: Run UI regression tests
         run: mvn -B test -Dsuitexmlfile=src/test/resources/test-suites/regression-suite.xml
 
+      - name: Upload Allure results on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results
+          retention-days: 7
+
