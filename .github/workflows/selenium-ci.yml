@@ -98,5 +98,5 @@ jobs:
         run: mvn -B clean compile
 
       - name: Run API tests
-        run: mvn -B test -DsuiteXmlFile=src/test/resources/test-suites/api-suite.xml
+        run: mvn -B test -Dsuitexmlfile=src/test/resources/test-suites/api-suite.xml
 
