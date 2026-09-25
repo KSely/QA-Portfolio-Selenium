@@ -2,7 +2,6 @@ package com.qaautomation.portfolio.base;
 
 import com.qaautomation.portfolio.driver.DriverFactory;
 import io.qameta.allure.Allure;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -21,25 +20,16 @@ public class BaseTest {
     @Parameters("browser")
     public void setUp(@Optional("chrome") String browser) {
 
-            // Create the WebDriver for the selected browser.
-            DriverFactory driverFactory = new DriverFactory();
-            driver = driverFactory.createDriver(browser);
+        // Create the WebDriver for the selected browser.
+        DriverFactory driverFactory = new DriverFactory();
+        driver = driverFactory.createDriver(browser);
 
+        // Maximize the browser locally.
+        // In CI, the browser window size is configured in DriverFactory.
         if (System.getenv("CI") == null) {
             driver.manage().window().maximize();
         }
-
-            // Diagnostic output for browser window and viewport size.
-            System.out.println("Window size: " + driver.manage().window().getSize());
-
-            Object viewportWidth = ((JavascriptExecutor) driver)
-                    .executeScript("return window.innerWidth");
-
-            Object viewportHeight = ((JavascriptExecutor) driver)
-                    .executeScript("return window.innerHeight");
-
-            System.out.println("Viewport: " + viewportWidth + "x" + viewportHeight);
-        }
+    }
 
     @AfterMethod(alwaysRun = true)
     public void tearDown(ITestResult result) {
