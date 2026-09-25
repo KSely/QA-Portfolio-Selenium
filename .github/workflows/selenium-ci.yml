@@ -103,3 +103,6 @@ jobs:
       - name: Run database tests
         run: mvn -B test -Dsuitexmlfile=src/test/resources/test-suites/database-suite.xml
 
+      - name: Run UI smoke tests
+        run: mvn -B test -Dsuitexmlfile=src/test/resources/test-suites/smoke-suite.xml
+
