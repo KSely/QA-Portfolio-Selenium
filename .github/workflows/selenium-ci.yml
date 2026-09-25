@@ -106,3 +106,6 @@ jobs:
       - name: Run UI smoke tests
         run: mvn -B test -Dsuitexmlfile=src/test/resources/test-suites/smoke-suite.xml
 
+      - name: Run UI regression tests
+        run: mvn -B test -Dsuitexmlfile=src/test/resources/test-suites/regression-suite.xml
+
