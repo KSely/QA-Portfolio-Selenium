@@ -73,6 +73,7 @@ src
         ├── test-suites
         │   ├── api-suite.xml
         │   ├── cross-browser-suite.xml
+        │   ├── database-suite.xml
         │   ├── regression-suite.xml
         │   └── smoke-suite.xml
         └── environment.properties
@@ -86,6 +87,7 @@ The framework uses TestNG XML suites to support different test execution strateg
 - **Regression Suite** — runs the complete UI regression suite
 - **Cross-Browser Suite** — runs the UI tests across Chrome, Firefox, and Edge
 - **API Suite** — runs REST Assured API tests independently from UI tests
+- **Database Suite** — runs PostgreSQL integration and data persistence tests
 
 ## Running the Tests
 
@@ -117,6 +119,12 @@ mvn clean test -Dsuitexmlfile=src/test/resources/test-suites/smoke-suite.xml
 
 ```bash
 mvn clean test -Dsuitexmlfile=src/test/resources/test-suites/api-suite.xml
+```
+
+### Run the Database Suite
+
+```bash
+mvn clean test -Dsuitexmlfile=src/test/resources/test-suites/database-suite.xml
 ```
 
 ### Run the Cross-Browser Suite
@@ -211,16 +219,25 @@ Database assertions verify that rejected requests are not persisted.
 
 The project uses GitHub Actions for Continuous Integration.
 
-The workflow is triggered automatically on pushes and pull requests to the `main` branch.
+The workflow is triggered automatically on pushes and pull requests to the `main` branch and performs end-to-end test environment setup and automated test execution.
 
-The current CI workflow:
+The CI pipeline:
 
-1. Runs on a GitHub-hosted Ubuntu runner
-2. Starts a PostgreSQL 16 service container
-3. Sets up Java 25 with Maven dependency caching
-4. Creates the test configuration from `config.properties.example`
-5. Initializes the required PostgreSQL database schema
-6. Performs a Maven build and compile check
+1. Checks out the Selenium automation repository
+2. Checks out the portfolio application under test
+3. Starts a PostgreSQL 16 service container
+4. Sets up Node.js and installs application dependencies
+5. Sets up Java 25 with Maven dependency caching
+6. Creates the application and test configuration from example files
+7. Initializes the PostgreSQL database schema
+8. Starts the portfolio application on the GitHub Actions runner
+9. Verifies that the application is available through the `/api/status` endpoint
+10. Builds the Selenium automation project
+11. Runs the API test suite
+12. Runs the database test suite
+13. Runs the headless UI smoke test suite
+14. Runs the headless UI regression test suite
+15. Uploads Allure test results as a GitHub Actions artifact when the workflow fails
 
 ```text
 Push / Pull Request
@@ -229,19 +246,25 @@ GitHub Actions
         ↓
 Ubuntu Runner
         ↓
-Java 25
-        ↓
 PostgreSQL 16
         ↓
-Test Configuration
+Start Application Under Test
         ↓
-Database Schema
+Application Health Check
         ↓
 Maven Build
         ↓
-Build Verification
+API Tests
+        ↓
+Database Tests
+        ↓
+UI Smoke Tests
+        ↓
+UI Regression Tests
+        ↓
+Allure Results on Failure
 ```
 
-The full Selenium regression suite currently runs locally because the application under test is hosted locally.
+UI tests run headlessly in CI using a fixed desktop browser window size to provide consistent behavior across GitHub-hosted runners.
 
-A future CI improvement would be to start the application on the GitHub runner and execute the full Selenium test suite as part of the pipeline.
+This setup allows the complete automated test workflow to run independently on GitHub infrastructure without requiring the application or PostgreSQL database to be running on a local development machine.
