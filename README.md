@@ -33,7 +33,7 @@ The framework includes:
 - **UI Testing** — automated browser testing using Selenium WebDriver
 - **API Testing** — REST API validation using REST Assured
 - **Database Testing** — PostgreSQL validation using JDBC
-- **Cross-Browser Testing** — UI test configuration for Chrome, Firefox, and Edge
+- **Cross-Browser Testing** — UI test execution in Chrome, Firefox, and Edge
 - **Smoke Testing** — focused validation of critical application functionality
 - **Regression Testing** — broader UI functional coverage
 - **Test Reporting** — Allure reporting with test results, environment information, and failure screenshots
@@ -45,16 +45,26 @@ The framework follows the Page Object Model (POM) design pattern and uses reusab
 
 ## Test Coverage
 
-The framework currently includes separate UI, API, and database test suites.
+The framework currently includes separate UI, API, database, smoke, regression, and cross-browser test suites.
 
 ### UI Regression
 
-- **25 UI regression tests**
-- Covers the Home and Project pages
-- Includes navigation, page content, and application behavior validation
-- Default `mvn clean test` execution runs the configured regression suite
+The default regression suite contains:
 
-Latest local regression execution:
+- **25 UI regression tests**
+- Home page coverage
+- Project page coverage
+- Navigation validation
+- Content validation
+- Application behavior validation
+
+The default local regression command is:
+
+```bash
+mvn clean test
+```
+
+Latest verified local regression execution:
 
 ```text
 Tests run: 25
@@ -65,7 +75,11 @@ Skipped: 0
 BUILD SUCCESS
 ```
 
+---
+
 ### API Testing
+
+The API suite contains:
 
 - **15 API test executions**
 - Application health validation
@@ -77,40 +91,107 @@ BUILD SUCCESS
 - Positive and negative response validation
 - Database persistence and non-persistence verification where applicable
 
+Latest verified API suite execution:
+
+```text
+Tests run: 15
+Failures: 0
+Errors: 0
+Skipped: 0
+
+BUILD SUCCESS
+```
+
+---
+
 ### Database Testing
 
-Database integration tests cover:
+The database suite contains:
 
-- PostgreSQL connectivity
+- **2 database test executions**
+- PostgreSQL connectivity validation
 - Direct JDBC queries
 - Contact message verification
-- Test data creation
-- Persistence validation
+- Stored data validation
+- Controlled test data
 - Automatic cleanup
+
+Latest verified database suite execution:
+
+```text
+Tests run: 2
+Failures: 0
+Errors: 0
+Skipped: 0
+
+BUILD SUCCESS
+```
+
+---
 
 ### Cross-Browser Testing
 
-The UI framework is configured to support:
+The Selenium UI framework supports:
 
 - Chrome
 - Firefox
 - Edge
+
+The dedicated cross-browser suite executes the same 25 UI regression tests across all three supported browsers.
+
+```text
+25 UI tests × 3 browsers = 75 executions
+```
+
+Latest verified cross-browser execution:
+
+```text
+Tests run: 75
+Failures: 0
+Errors: 0
+Skipped: 0
+
+BUILD SUCCESS
+```
 
 The cross-browser suite is separate from the default `mvn clean test` regression execution.
 
 This distinction is important:
 
 ```text
-Default regression run
-    ↓
-25 UI test executions in the configured browser
+Default regression execution
+        ↓
+25 UI test executions
+        ↓
+Configured browser
 
-Cross-browser suite
-    ↓
-Same UI coverage executed through multiple browser configurations
+Cross-browser execution
+        ↓
+25 UI tests
+        ↓
+Chrome + Firefox + Edge
+        ↓
+75 total executions
 ```
 
-Therefore, the number shown by Maven after `mvn clean test` should not be compared directly with Playwright's configured multi-browser execution count.
+Therefore, the Maven result from the default regression suite should not be compared directly with a multi-browser execution count.
+
+---
+
+## Verified Test Execution Summary
+
+The following test executions have been verified locally:
+
+| Test Suite | Test Executions | Result |
+|---|---:|---|
+| UI Regression | 25 | Passed |
+| API | 15 | Passed |
+| Database | 2 | Passed |
+| Cross-Browser | 75 | Passed |
+
+The cross-browser count represents repeated execution of the 25 UI regression tests across Chrome, Firefox, and Edge.
+
+It should not be interpreted as 75 unique UI test cases.
 
 ---
 
@@ -160,15 +241,17 @@ src
 
 ## Test Suites
 
-The framework uses TestNG XML suites to support different execution strategies.
+The framework uses TestNG XML suites to support different test execution strategies.
 
 ### Smoke Suite
 
 Runs a focused set of critical UI tests.
 
 ```bash
-mvn clean test -Dsuitexmlfile=src/test/resources/test-suites/smoke-suite.xml
+mvn clean test "-Dsuitexmlfile=src/test/resources/test-suites/smoke-suite.xml"
 ```
+
+---
 
 ### Regression Suite
 
@@ -178,37 +261,65 @@ Runs the default UI regression suite.
 mvn clean test
 ```
 
-The current default local regression execution contains:
+Latest verified execution:
 
 ```text
-25 UI tests
+25 passed
 ```
+
+---
 
 ### API Suite
 
 Runs REST Assured API tests independently from UI tests.
 
 ```bash
-mvn clean test -Dsuitexmlfile=src/test/resources/test-suites/api-suite.xml
+mvn clean test "-Dsuitexmlfile=src/test/resources/test-suites/api-suite.xml"
 ```
+
+Latest verified execution:
+
+```text
+15 passed
+```
+
+---
 
 ### Database Suite
 
 Runs PostgreSQL integration and database validation tests.
 
 ```bash
-mvn clean test -Dsuitexmlfile=src/test/resources/test-suites/database-suite.xml
+mvn clean test "-Dsuitexmlfile=src/test/resources/test-suites/database-suite.xml"
 ```
+
+Latest verified execution:
+
+```text
+2 passed
+```
+
+---
 
 ### Cross-Browser Suite
 
-Runs the UI test coverage using Chrome, Firefox, and Edge configurations.
+Runs the UI regression coverage using Chrome, Firefox, and Edge.
 
 ```bash
-mvn clean test -Dsuitexmlfile=src/test/resources/test-suites/cross-browser-suite.xml
+mvn clean test "-Dsuitexmlfile=src/test/resources/test-suites/cross-browser-suite.xml"
 ```
 
-The cross-browser suite is intentionally separate from the default regression command.
+Latest verified execution:
+
+```text
+75 passed
+```
+
+The 75 executions represent:
+
+```text
+25 UI tests × 3 browsers
+```
 
 ---
 
@@ -228,7 +339,9 @@ Before running the tests, make sure the following are installed and available:
 http://localhost:3000
 ```
 
-PostgreSQL can run as a Windows service in the background. pgAdmin does not need to be open.
+PostgreSQL can run as a Windows service in the background.
+
+pgAdmin does not need to be open for the Selenium tests to connect to PostgreSQL.
 
 To verify the PostgreSQL Windows service:
 
@@ -236,7 +349,7 @@ To verify the PostgreSQL Windows service:
 Get-Service *postgres*
 ```
 
-A running service should display a status similar to:
+A running service should display:
 
 ```text
 Running
@@ -244,24 +357,23 @@ Running
 
 ---
 
-## Run the UI Regression Suite
+## Start the Application Under Test
 
-The regression suite is configured as the default Maven test suite:
+Before running local Selenium tests, start the portfolio application from the AUT repository:
 
 ```bash
-mvn clean test
+npm start
 ```
 
-Example successful execution:
+The application should be available at:
 
 ```text
-Tests run: 25
-Failures: 0
-Errors: 0
-Skipped: 0
-
-BUILD SUCCESS
+http://localhost:3000
 ```
+
+The Selenium automation framework connects to the running application.
+
+The application does not start PostgreSQL itself. PostgreSQL runs independently as a database service.
 
 ---
 
@@ -343,7 +455,11 @@ This improves readability, maintainability, and locator reuse.
 
 ## UI Testing
 
-The current regression suite contains 25 UI tests.
+The current default regression suite contains:
+
+```text
+25 UI tests
+```
 
 Coverage includes:
 
@@ -355,15 +471,22 @@ Coverage includes:
 - Project navigation links
 - Automation-related project sections
 - Contact-related UI workflows
-- Smoke and regression scenarios
+- Smoke scenarios
+- Regression scenarios
 
-The UI framework also supports cross-browser execution using Chrome, Firefox, and Edge.
+The same UI regression coverage can also be executed across Chrome, Firefox, and Edge using the dedicated cross-browser suite.
 
 ---
 
 ## API Testing
 
 REST Assured is used for direct backend testing.
+
+The current API suite contains:
+
+```text
+15 test executions
+```
 
 ### `GET /api/status`
 
@@ -405,6 +528,12 @@ Data-driven testing is used for validation scenarios where appropriate.
 ## Database Testing
 
 The framework connects directly to PostgreSQL using JDBC.
+
+The dedicated database suite currently contains:
+
+```text
+2 test executions
+```
 
 Database validation includes:
 
@@ -463,6 +592,8 @@ The backend validation was updated to reject:
 
 Regression tests were then used to verify the corrected behavior.
 
+---
+
 ### Email Format Validation
 
 API automation also identified that incomplete email addresses such as:
@@ -476,6 +607,8 @@ were accepted because the original validation only checked for the presence of t
 The validation logic was improved, and additional data-driven test cases were added for invalid email formats.
 
 Database assertions verify that rejected requests are not persisted.
+
+---
 
 ### Additional Application Defects
 
@@ -596,6 +729,41 @@ This setup allows the automated test workflow to run independently on GitHub inf
 
 ---
 
+## Selenium and Playwright Execution Counts
+
+The Selenium and Playwright repositories use different execution strategies.
+
+### Selenium
+
+The default Selenium regression suite runs:
+
+```text
+25 UI tests
+```
+
+The dedicated Selenium cross-browser suite runs:
+
+```text
+25 UI tests × 3 browsers
+= 75 test executions
+```
+
+Supported Selenium browsers:
+
+```text
+Chrome
+Firefox
+Edge
+```
+
+### Playwright
+
+The Playwright framework has its own independently maintained test suite and browser configuration.
+
+Because the frameworks contain different tests and execute them using different browser strategies, their final execution counts should not be compared as if they represent the same number of unique test cases.
+
+---
+
 ## Related Repositories
 
 ### Application Under Test
@@ -633,7 +801,7 @@ This project demonstrates practical experience with:
 - PostgreSQL integration
 - JDBC database verification
 - UI-to-database validation
-- Cross-browser test configuration
+- Cross-browser testing
 - Chrome, Firefox, and Edge
 - Smoke testing
 - Regression testing
@@ -658,7 +826,7 @@ The framework focuses on:
 - UI automation
 - API validation
 - Database verification
-- Cross-browser configuration
+- Cross-browser testing
 - Test independence
 - Test reporting
 - CI/CD integration
