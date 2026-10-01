@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 import java.sql.SQLException;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.Matchers.equalTo;
 
 @Epic("API Testing")
@@ -70,7 +71,8 @@ public class ContactApiTest extends BaseApiTest {
                 .then()
                 .statusCode(400)
                 .body("success", equalTo(false))
-                .body("message", equalTo("All fields are required."));
+                .body("message", equalTo("All fields are required."))
+                .body(matchesJsonSchemaInClasspath("schemas/contact-response.schema.json"));
 
         boolean exists = DatabaseHelper.messageExists(email, message);
 
@@ -98,7 +100,8 @@ public class ContactApiTest extends BaseApiTest {
                 .then()
                 .statusCode(400)
                 .body("success", equalTo(false))
-                .body("message", equalTo("Invalid email address."));
+                .body("message", equalTo("Invalid email address."))
+                .body(matchesJsonSchemaInClasspath("schemas/contact-response.schema.json"));
 
         boolean exists = DatabaseHelper.messageExists(email, message);
 
@@ -130,7 +133,8 @@ public class ContactApiTest extends BaseApiTest {
                     .then()
                     .statusCode(200)
                     .body("success", equalTo(true))
-                    .body("message", equalTo("Message sent successfully!"));
+                    .body("message", equalTo("Message sent successfully!"))
+                    .body(matchesJsonSchemaInClasspath("schemas/contact-response.schema.json"));
 
             boolean exists = DatabaseHelper.messageExists(email, message);
 
@@ -163,7 +167,8 @@ public class ContactApiTest extends BaseApiTest {
                 .then()
                 .statusCode(400)
                 .body("success", equalTo(false))
-                .body("message", equalTo("All fields are required."));
+                .body("message", equalTo("All fields are required."))
+                .body(matchesJsonSchemaInClasspath("schemas/contact-response.schema.json"));
 
         boolean exists = DatabaseHelper.messageExists(email, message);
 
@@ -191,7 +196,8 @@ public class ContactApiTest extends BaseApiTest {
                 .then()
                 .statusCode(400)
                 .body("success", equalTo(false))
-                .body("message", equalTo("All fields are required."));
+                .body("message", equalTo("All fields are required."))
+                .body(matchesJsonSchemaInClasspath("schemas/contact-response.schema.json"));
 
         boolean exists = DatabaseHelper.messageExistsByMessage(message);
 
@@ -219,7 +225,8 @@ public class ContactApiTest extends BaseApiTest {
                 .then()
                 .statusCode(400)
                 .body("success", equalTo(false))
-                .body("message", equalTo("All fields are required."));
+                .body("message", equalTo("All fields are required."))
+                .body(matchesJsonSchemaInClasspath("schemas/contact-response.schema.json"));
 
         boolean exists = DatabaseHelper.messageExistsByEmail(email);
 

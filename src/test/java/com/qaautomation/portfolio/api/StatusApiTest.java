@@ -6,6 +6,7 @@ import io.qameta.allure.Story;
 import org.testng.annotations.Test;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.Matchers.equalTo;
 
 @Epic("API Testing")
@@ -22,6 +23,7 @@ public class StatusApiTest extends BaseApiTest {
                 .then()
                 .statusCode(200)
                 .body("status", equalTo("ok"))
-                .body("message", equalTo("QA Automation Portfolio backend is running"));
+                .body("message", equalTo("QA Automation Portfolio backend is running"))
+                .body(matchesJsonSchemaInClasspath("schemas/status-response.schema.json"));
     }
 }
