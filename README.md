@@ -16,6 +16,7 @@ The Application Under Test (AUT) is maintained in a separate repository:
 - Selenium WebDriver
 - TestNG
 - REST Assured
+- REST Assured JSON Schema Validator 5.5.6
 - PostgreSQL / JDBC
 - Maven
 - Allure Report
@@ -89,6 +90,7 @@ The API suite contains:
 - Whitespace-only validation
 - Invalid email validation
 - Positive and negative response validation
+- JSON Schema-based API contract validation
 - Database persistence and non-persistence verification where applicable
 
 Latest verified API suite execution:
@@ -233,6 +235,10 @@ src
         │   ├── database-suite.xml
         │   ├── regression-suite.xml
         │   └── smoke-suite.xml
+        │
+        ├── schemas
+        │   ├── contact-response.schema.json
+        │   └── status-response.schema.json
         │
         └── environment.properties
 ```
@@ -480,13 +486,22 @@ The same UI regression coverage can also be executed across Chrome, Firefox, and
 
 ## API Testing
 
-REST Assured is used for direct backend testing.
+REST Assured is used for direct backend testing. The REST Assured JSON Schema Validator adds JSON Schema Validation for API contract validation while preserving the existing functional assertions.
 
 The current API suite contains:
 
 ```text
 15 test executions
 ```
+
+The API tests validate:
+
+- HTTP status codes
+- Exact response values and messages
+- Database persistence or non-persistence where applicable
+- JSON response structure
+- Required properties
+- Property data types
 
 ### `GET /api/status`
 
@@ -522,6 +537,28 @@ Contact API testing covers:
 - Rejected-data non-persistence
 
 Data-driven testing is used for validation scenarios where appropriate.
+
+### JSON Schema Validation
+
+REST Assured uses `matchesJsonSchemaInClasspath(...)` to validate response bodies against JSON Schema files loaded from `src/test/resources/schemas/`. Schema validation adds response-structure and data-type checks; existing REST Assured `body(...)` assertions continue to verify exact business values and messages.
+
+The implemented schemas are:
+
+- `status-response.schema.json`
+  - Validates a root object with required `status` and `message` properties.
+  - Requires both properties to be strings.
+- `contact-response.schema.json`
+  - Validates a root object with required `success` and `message` properties.
+  - Requires `success` to be a boolean and `message` to be a string.
+
+Schema validation currently covers these existing API scenarios:
+
+- Successful `GET /api/status`
+- Successful `POST /contact`
+- Empty, missing, and whitespace-only required-field rejections
+- Invalid-email rejections
+
+No schema-only tests were added. JSON Schema Validation is an additional assertion dimension, and the API suite remains at **15 test executions**.
 
 ---
 
@@ -689,7 +726,7 @@ The CI pipeline:
 8. Starts the portfolio application on the GitHub Actions runner
 9. Verifies that the application is available through `/api/status`
 10. Builds the Selenium automation project
-11. Runs the API test suite
+11. Runs the API test suite, including REST Assured JSON Schema validation
 12. Runs the database test suite
 13. Runs the headless UI smoke test suite
 14. Runs the headless UI regression test suite
@@ -724,6 +761,8 @@ Allure Results on Failure
 ```
 
 UI tests run headlessly in CI using a fixed desktop browser window size to provide consistent behavior across GitHub-hosted runners.
+
+JSON Schema Validation runs automatically within the existing API test stage. No separate schema-validation workflow or test stage was created. The existing GitHub Actions workflow completed successfully with these schema assertions included.
 
 This setup allows the automated test workflow to run independently on GitHub infrastructure without requiring the application or PostgreSQL database to be running on a local development machine.
 
@@ -796,6 +835,9 @@ This project demonstrates practical experience with:
 - Page Object Model
 - REST Assured
 - API testing
+- JSON Schema Validation
+- REST Assured JSON Schema Validator
+- JSON Schema-based API contract validation
 - Positive and negative testing
 - Data-driven validation
 - PostgreSQL integration
