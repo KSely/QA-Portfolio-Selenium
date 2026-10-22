@@ -64,20 +64,6 @@ jobs:
           cp src/main/resources/config.properties.example src/main/resources/config.properties
           sed -i 's/dbPassword=your_database_password/dbPassword=postgres/' src/main/resources/config.properties
           
-      - name: Create database schema
-        run: |
-          PGPASSWORD=postgres psql \
-            -h localhost \
-            -U postgres \
-            -d qa_portfolio \
-            -c "CREATE TABLE IF NOT EXISTS messages (
-              id SERIAL PRIMARY KEY,
-              name VARCHAR(255) NOT NULL,
-              email VARCHAR(255) NOT NULL,
-              message TEXT NOT NULL,
-              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );"   
-
       - name: Start application under test
         working-directory: qa-automation-portfolio
         run: |
